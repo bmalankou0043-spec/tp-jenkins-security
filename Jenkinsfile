@@ -9,22 +9,15 @@ pipeline {
             }
         }
 
-        stage('Install Python') {
-            steps {
-                sh 'apt-get update'
-                sh 'apt-get install -y python3 python3-pip'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
-                sh 'pip3 install -r requirements.txt'
+                sh 'python3 -m pip install --user -r requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'pytest'
+                sh 'python3 -m pytest'
             }
         }
 
