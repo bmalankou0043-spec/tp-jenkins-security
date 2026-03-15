@@ -5,7 +5,7 @@ pipeline {
 
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/bmalankou0043-spec/tp-jenkins-security.git'
+                git branch: 'main', url: 'https://github.com/bmalankou0043-spec/tp-jenkins-security.git'
             }
         }
 
@@ -38,7 +38,6 @@ pipeline {
                 '''
             }
         }
-
     }
 
     post {
