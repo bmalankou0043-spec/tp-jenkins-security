@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.10'
+        }
+    }
 
     stages {
 
@@ -12,8 +16,6 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                python3 -m venv venv
-                . venv/bin/activate
                 pip install --upgrade pip
                 pip install -r requirements.txt
                 '''
@@ -22,17 +24,13 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh '''
-                . venv/bin/activate
-                pytest
-                '''
+                sh 'pytest'
             }
         }
 
         stage('SCA Scan') {
             steps {
                 sh '''
-                . venv/bin/activate
                 pip install safety
                 safety check
                 '''
