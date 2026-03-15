@@ -16,23 +16,23 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                pip install --upgrade pip
-                pip install -r requirements.txt
+                pip install --user --upgrade pip
+                pip install --user -r requirements.txt
                 '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'pytest'
+                sh '~/.local/bin/pytest'
             }
         }
 
         stage('SCA Scan') {
             steps {
                 sh '''
-                pip install safety
-                safety check
+                ~/.local/bin/pip install --user safety
+                ~/.local/bin/safety check
                 '''
             }
         }
