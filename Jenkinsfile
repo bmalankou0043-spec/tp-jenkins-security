@@ -16,7 +16,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                pip install --user --upgrade pip
+                export HOME=/tmp
                 pip install --user -r requirements.txt
                 '''
             }
@@ -24,15 +24,19 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh '~/.local/bin/pytest'
+                sh '''
+                export HOME=/tmp
+                python -m pytest
+                '''
             }
         }
 
         stage('SCA Scan') {
             steps {
                 sh '''
-                ~/.local/bin/pip install --user safety
-                ~/.local/bin/safety check
+                export HOME=/tmp
+                pip install --user safety
+                python -m safety check
                 '''
             }
         }
