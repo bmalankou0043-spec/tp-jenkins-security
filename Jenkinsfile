@@ -13,14 +13,18 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh '''
-                export HOME=/tmp
-                pip install --user -r requirements.txt
-                '''
-            }
-        }
+     stage('Install Dependencies') {
+    steps {
+        sh '''
+        export HOME=/tmp
+
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade wheel
+
+        pip install --user -r requirements.txt
+        '''
+    }
+}
 
         stage('Run Tests') {
             steps {
