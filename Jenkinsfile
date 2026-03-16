@@ -13,15 +13,13 @@ pipeline {
             }
         }
 
-     stage('Install Dependencies') {
+stage('Install Dependencies') {
     steps {
         sh '''
         export HOME=/tmp
-
         python -m pip install --upgrade pip
         python -m pip install --upgrade wheel
-
-        pip install --user -r requirements.txt
+        python -m pip install --no-cache-dir -r requirements.txt
         '''
     }
 }
