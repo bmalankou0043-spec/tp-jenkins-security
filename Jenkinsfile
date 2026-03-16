@@ -12,7 +12,14 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/bmalankou0043-spec/tp-jenkins-security.git'
             }
         }
-
+stage('Security Scan') {
+    steps {
+        sh '''
+        pip install bandit
+        bandit -r .
+        '''
+    }
+}
 stage('Install Dependencies') {
     steps {
         sh '''
