@@ -12,7 +12,7 @@ pipeline {
     steps {
         sh '''
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+     safety check -r requirements.txt
         pip install bandit safety pytest
         '''
     }
@@ -27,12 +27,11 @@ pipeline {
             }
         }
 
-        stage('Dependency Security Scan (SCA)') {
+ stage('Dependency Security Scan (SCA)') {
     steps {
-        sh 'safety scan'
+        sh 'safety check -r requirements.txt'
     }
 }
-
         stage('Static Code Security Scan') {
     steps {
         sh 'bandit -r .'
