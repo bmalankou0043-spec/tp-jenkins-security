@@ -1,28 +1,28 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.10'
+            args '-u root'
+        }
+    }
 
     stages {
-
-       stage('Clone Repository') {
-    steps {
-        git branch: 'main', url: 'https://github.com/bmalankou0043-spec/tp-jenkins-security.git'
-    }
-}
 
         stage('Install Dependencies') {
             steps {
                 sh '''
-                export HOME=/tmp
-                python3 -m pip install --upgrade pip
-                python3 -m pip install --upgrade wheel
-                python3 -m pip install -r requirements.txt
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
                 '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'pytest'
+                sh '''
+                pip install pytest
+                pytest
+                '''
             }
         }
 
@@ -43,18 +43,20 @@ pipeline {
                 '''
             }
         }
-        stage('Docker Security Scan') {
-    steps {
-        sh '''
-        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-        aquasec/trivy image flask-secure-app
-        '''
-    }
-}
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t flask-secure-app .'
+                sh '''
+                docker build -t jenkins-secure-app .
+                '''
+            }
+        }
+
+        stage('Docker Security Scan') {
+            steps {
+                sh '''
+                docker run --rm aquasec/trivy image jenkins-secure-app
+                '''
             }
         }
 
@@ -62,9 +64,8 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully'
+            echo 'Pipeline executed successfully!'
         }
-
         failure {
             echo 'Pipeline failed'
         }
