@@ -43,6 +43,14 @@ pipeline {
                 '''
             }
         }
+        stage('Docker Security Scan') {
+    steps {
+        sh '''
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+        aquasec/trivy image flask-secure-app
+        '''
+    }
+}
 
         stage('Build Docker Image') {
             steps {
