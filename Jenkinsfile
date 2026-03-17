@@ -1,62 +1,64 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.10'
-        }
-    }
+    agent any
 
     stages {
 
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/bmalankou0043-spec/tp-jenkins-security.git'
+                git 'https://github.com/bmalankou0043-spec/tp-jenkins-security.git'
             }
         }
-stage('Security Scan') {
-    steps {
-        sh '''
-        pip install bandit
-        bandit -r .
-        '''
-    }
-}
-stage('Install Dependencies') {
-    steps {
-        sh '''
-        export HOME=/tmp
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade wheel
-        python -m pip install --no-cache-dir -r requirements.txt
-        '''
-    }
-}
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                export HOME=/tmp
+                python3 -m pip install --upgrade pip
+                python3 -m pip install --upgrade wheel
+                python3 -m pip install -r requirements.txt
+                '''
+            }
+        }
 
         stage('Run Tests') {
             steps {
+                sh 'pytest'
+            }
+        }
+
+        stage('Dependency Security Scan (SCA)') {
+            steps {
                 sh '''
-                export HOME=/tmp
-                python -m pytest
+                pip install safety
+                safety check
                 '''
             }
         }
 
-        stage('SCA Scan') {
+        stage('Static Code Security Scan') {
             steps {
                 sh '''
-                export HOME=/tmp
-                pip install --user safety
-                python -m safety check
+                pip install bandit
+                bandit -r .
                 '''
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t flask-secure-app .'
+            }
+        }
+
     }
 
     post {
         success {
-            echo 'Pipeline executed successfully'
+            echo 'Pipeline completed successfully'
         }
+
         failure {
-            echo 'Build failed due to errors or vulnerabilities'
+            echo 'Pipeline failed'
         }
     }
 }
