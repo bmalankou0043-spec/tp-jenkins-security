@@ -3,11 +3,11 @@ pipeline {
 
     stages {
 
-        stage('Clone Repository') {
-            steps {
-                git 'https://github.com/bmalankou0043-spec/tp-jenkins-security.git'
-            }
-        }
+       stage('Clone Repository') {
+    steps {
+        git branch: 'main', url: 'https://github.com/bmalankou0043-spec/tp-jenkins-security.git'
+    }
+}
 
         stage('Install Dependencies') {
             steps {
