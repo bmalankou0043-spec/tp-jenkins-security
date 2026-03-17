@@ -9,13 +9,14 @@ pipeline {
     stages {
 
         stage('Install Dependencies') {
-            steps {
-                sh '''
-                python -m pip install --upgrade pip
-                pip install -r requirements.txt
-                '''
-            }
-        }
+    steps {
+        sh '''
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install bandit safety pytest
+        '''
+    }
+}
 
         stage('Run Tests') {
             steps {
@@ -27,22 +28,16 @@ pipeline {
         }
 
         stage('Dependency Security Scan (SCA)') {
-            steps {
-                sh '''
-                pip install safety
-                safety check
-                '''
-            }
-        }
+    steps {
+        sh 'safety scan'
+    }
+}
 
         stage('Static Code Security Scan') {
-            steps {
-                sh '''
-                pip install bandit
-                bandit -r .
-                '''
-            }
-        }
+    steps {
+        sh 'bandit -r .'
+    }
+}
 
         stage('Build Docker Image') {
             steps {
