@@ -37,7 +37,18 @@ pipeline {
         }
 
     }
-
+stage('Build Docker Image') {
+    steps {
+        sh 'docker build -t tp-jenkins-app .'
+    }
+}
+    stage('Docker Security Scan') {
+    steps {
+        sh '''
+        docker run --rm aquasec/trivy image tp-jenkins-app
+        '''
+    }
+}
     post {
         success {
             echo 'Pipeline executed successfully'
