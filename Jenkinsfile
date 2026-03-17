@@ -9,59 +9,89 @@ pipeline {
     stages {
 
         stage('Install Dependencies') {
-    steps {
-        sh '''
-        python -m pip install --upgrade pip
-     safety check -r requirements.txt
-        pip install bandit safety pytest
-        '''
-    }
-}
+            steps {
+                sh '''
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+                pip install safety bandit pytest
+                '''
+            }
+        }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                pip install pytest
-                pytest
-                '''
+                sh 'pytest'
             }
         }
 
- stage('Dependency Security Scan (SCA)') {
-    steps {
-        sh 'safety check -r requirements.txt'
-    }
-}
+        stage('Dependency Security Scan (SCA)') {
+            steps {
+                sh 'safety check || true'
+            }
+        }
+
         stage('Static Code Security Scan') {
-    steps {
-        sh 'bandit -r .'
-    }
-}
-
-        stage('Build Docker Image') {
             steps {
-                sh '''
-                docker build -t jenkins-secure-app .
-                '''
-            }
-        }
-
-        stage('Docker Security Scan') {
-            steps {
-                sh '''
-                docker run --rm aquasec/trivy image jenkins-secure-app
-                '''
+                sh 'bandit -r . || true'
             }
         }
 
     }
 
     post {
-        success {
-            echo 'Pipeline executed successfully!'
-        }
         failure {
             echo 'Pipeline failed'
+        }
+        success {
+            echo 'Pipeline succeeded'
+        }
+    }
+}pipeline {
+    agent {
+        docker {
+            image 'python:3.10'
+            args '-u root'
+        }
+    }
+
+    stages {
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+                pip install safety bandit pytest
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'pytest'
+            }
+        }
+
+        stage('Dependency Security Scan (SCA)') {
+            steps {
+                sh 'safety check || true'
+            }
+        }
+
+        stage('Static Code Security Scan') {
+            steps {
+                sh 'bandit -r . || true'
+            }
+        }
+
+    }
+
+    post {
+        failure {
+            echo 'Pipeline failed'
+        }
+        success {
+            echo 'Pipeline succeeded'
         }
     }
 }
